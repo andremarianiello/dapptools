@@ -246,12 +246,12 @@ readJSON json = do
             abis =
               toList ((x ^?! key "abi" . _String) ^?! _Array)
             relevant =
-              filter (\y -> "function" == y ^?! key "type" . _String) abis
+              filter (\y -> "fallback" /= y ^?! key "type" . _String) abis
           in flip map relevant $
             \abi -> (
               abiKeccak (encodeUtf8 (signature abi)),
               Method
-                { _methodName = abi ^?! key "name" . _String
+                { _methodName = fromMaybe "" (abi ^? key "name" . _String)
                 , _methodSignature = signature abi
                 , _methodInputs =
                     map parseMethodInput
